@@ -1,9 +1,6 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\study\\DISTRIBUTED-PROGRAMMING\\",
-<<<<<<< HEAD
-  "Documents": [],
-=======
   "Documents": [
     {
       "AbsoluteMoniker": "D:0:0:{BB3B7AF3-09CB-8246-6EE6-CF385AAB4AA1}|Valuator\\Valuator.csproj|d:\\study\\distributed-programming\\valuator\\pages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -34,7 +31,6 @@
       "RelativeMoniker": "D:0:0:{BB3B7AF3-09CB-8246-6EE6-CF385AAB4AA1}|Valuator\\Valuator.csproj|solutionrelative:valuator\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
   ],
->>>>>>> pa2
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -42,17 +38,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-<<<<<<< HEAD
-          "SelectedChildIndex": -1,
-=======
           "SelectedChildIndex": 1,
->>>>>>> pa2
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:1:0:{f2bd8fb8-fc94-3dae-a733-fd993c73cc87}"
-<<<<<<< HEAD
-=======
             },
             {
               "$type": "Document",
@@ -62,7 +52,7 @@
               "RelativeDocumentMoniker": "Valuator\\Pages\\Index.cshtml",
               "ToolTip": "D:\\study\\DISTRIBUTED-PROGRAMMING\\Valuator\\Pages\\Index.cshtml",
               "RelativeToolTip": "Valuator\\Pages\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAGAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-02-15T11:13:36.608Z",
               "EditorCaption": ""
@@ -144,7 +134,6 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-02-15T11:13:03.651Z",
               "EditorCaption": ""
->>>>>>> pa2
             }
           ]
         }
