@@ -1,0 +1,14 @@
+2026/03/04 14:30:03 [emerg] 15956#18804: CreateDirectory() "./temp/client_body_temp" failed (3: The system cannot find the path specified)
+2026/03/04 14:36:05 [emerg] 13092#2544: CreateDirectory() "./temp/client_body_temp" failed (3: The system cannot find the path specified)
+2026/03/18 12:40:09 [notice] 16620#2552: signal process started
+2026/03/18 12:40:09 [error] 16620#2552: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/03/18 12:45:10 [notice] 10372#10088: signal process started
+2026/03/18 12:45:10 [error] 10372#10088: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/03/18 12:51:25 [notice] 5940#8936: signal process started
+2026/03/18 12:51:25 [error] 5940#8936: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/03/18 12:55:14 [notice] 14824#9484: signal process started
+2026/03/18 12:55:14 [error] 14824#9484: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/03/18 12:58:34 [notice] 15040#17712: signal process started
+2026/03/18 12:58:34 [error] 15040#17712: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/03/18 14:33:04 [notice] 5600#5460: signal process started
+2026/03/18 14:33:04 [error] 5600#5460: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
