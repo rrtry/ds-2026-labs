@@ -1,33 +1,40 @@
-namespace Valuator;
 using StackExchange.Redis;
+using RabbitMQ.Client;
+using Valuator.Services;
+
+namespace Valuator;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
         builder.Services.AddRazorPages();
-        builder.Services.AddSingleton<IConnectionMultiplexer>(options =>
+        builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
             ConnectionMultiplexer.Connect("localhost:6379")
         );
 
-        var app = builder.Build();
+        // Регистрация RabbitMQ connection
+        builder.Services.AddSingleton<IConnection>(sp =>
+        {
+            var factory = new ConnectionFactory { HostName = "localhost" };
+            return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+        });
 
-        // Configure the HTTP request pipeline.
+        builder.Services.AddScoped<IRankMessageProducer, RabbitMqRankProducer>();
+
+        var app = builder.Build();
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error");
         }
+        
         app.UseStaticFiles();
-
         app.UseRouting();
-
         app.UseAuthorization();
-
         app.MapRazorPages();
 
-        app.Run();
+        await app.RunAsync();
     }
 }

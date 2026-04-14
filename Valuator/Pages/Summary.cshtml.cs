@@ -20,6 +20,7 @@ public class SummaryModel : PageModel
     public string Text { get; set; } = string.Empty;
     public double Rank { get; set; } = 0.0;
     public double Similarity { get; set; } = 0.0;
+    public bool IsRankCalculated { get; set; } = false;
 
     public IActionResult OnGet(string id)
     {
@@ -33,28 +34,25 @@ public class SummaryModel : PageModel
 
         var db = _redisConnection.GetDatabase();
 
-        // Получаем текст из Redis
         var textValue = db.StringGet($"TEXT-{id}");
         Text = textValue.IsNullOrEmpty ? "Not found" : textValue.ToString();
 
-        // Получаем rank из Redis
-        var rankValue = db.StringGet($"RANK-{id}");
-        if (!rankValue.IsNullOrEmpty)
+        // Проверяем, существует ли ключ ранга
+        var rankKey = $"RANK-{id}";
+        IsRankCalculated = db.KeyExists(rankKey);
+        if (IsRankCalculated)
         {
-            if (double.TryParse(rankValue.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out double rank))
+            var rankValue = db.StringGet(rankKey);
+            if (!rankValue.IsNullOrEmpty && double.TryParse(rankValue.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out double rank))
             {
                 Rank = rank;
             }
         }
 
-        // Получаем similarity из Redis
         var similarityValue = db.StringGet($"SIMILARITY-{id}");
-        if (!similarityValue.IsNullOrEmpty)
+        if (!similarityValue.IsNullOrEmpty && double.TryParse(similarityValue.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out double similarity))
         {
-            if (double.TryParse(similarityValue.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out double similarity))
-            {
-                Similarity = similarity;
-            }
+            Similarity = similarity;
         }
 
         Console.WriteLine($"Retrieved data for ID: {id}, Text: {Text}, Rank: {Rank}, Similarity: {Similarity}");

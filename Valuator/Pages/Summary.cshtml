@@ -1,6 +1,19 @@
 ﻿@page
 @model Valuator.Pages.SummaryModel
 @{
+    ViewData["Title"] = "Summary";
 }
-<p>Оценка содержания: @Model.Rank</p>
-<p>Плагиат: @Model.Similarity</p>
+
+<h1>Summary</h1>
+<p><strong>ID:</strong> @Model.Id</p>
+<p><strong>Text:</strong> @Model.Text</p>
+<p><strong>Similarity:</strong> @Model.Similarity</p>
+
+@if (!Model.IsRankCalculated)
+{
+    <p><strong>Rank:</strong> Оценка содержания не завершена</p>
+}
+else
+{
+    <p><strong>Rank:</strong> @Model.Rank</p>
+}
