@@ -31,11 +31,11 @@ Write-Host "$valuatorStopped stopped" -ForegroundColor Green
 
 # Остановка RankCalculator (по сохранённым PID)
 Write-Host -NoNewline "Stopping RankCalculator instances: "
-$pidFile = Join-Path $env:TEMP "rankcalculator_pids.txt"
+$rankPidFile = Join-Path $env:TEMP "rankcalculator_pids.txt"
 $rankStopped = 0
-if (Test-Path $pidFile) {
-    $pids = Get-Content $pidFile
-    foreach ($procId in $pids) {   # ← ИСПРАВЛЕНО: не $pid, а $procId
+if (Test-Path $rankPidFile) {
+    $pids = Get-Content $rankPidFile
+    foreach ($procId in $pids) {
         try {
             $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
             if ($proc) {
@@ -44,11 +44,30 @@ if (Test-Path $pidFile) {
             }
         } catch {}
     }
-    Remove-Item $pidFile -Force
+    Remove-Item $rankPidFile -Force
 }
 Write-Host "$rankStopped stopped" -ForegroundColor Green
 
-# Освобождение портов (только для Valuator)
+# Остановка EventsLogger (по сохранённым PID)
+Write-Host -NoNewline "Stopping EventsLogger instances: "
+$loggerPidFile = Join-Path $env:TEMP "eventslogger_pids.txt"
+$loggerStopped = 0
+if (Test-Path $loggerPidFile) {
+    $pids = Get-Content $loggerPidFile
+    foreach ($procId in $pids) {
+        try {
+            $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
+            if ($proc) {
+                $proc | Stop-Process -Force
+                $loggerStopped++
+            }
+        } catch {}
+    }
+    Remove-Item $loggerPidFile -Force
+}
+Write-Host "$loggerStopped stopped" -ForegroundColor Green
+
+# Освобождение портов
 Write-Host -NoNewline "Freeing ports (5001-5002): "
 $ports = @(5001, 5002)
 foreach ($port in $ports) {
@@ -66,7 +85,7 @@ Write-Host "OK" -ForegroundColor Green
 # Очистка логов
 Write-Host -NoNewline "Cleaning up log files: "
 $logCount = 0
-$logFiles = Get-ChildItem "$env:TEMP\valuator_*.log","$env:TEMP\valuator_*.err","$env:TEMP\rankcalculator_*.log","$env:TEMP\rankcalculator_*.err" -ErrorAction SilentlyContinue
+$logFiles = Get-ChildItem "$env:TEMP\valuator_*.log","$env:TEMP\valuator_*.err","$env:TEMP\rankcalculator_*.log","$env:TEMP\rankcalculator_*.err","$env:TEMP\eventslogger_*.log","$env:TEMP\eventslogger_*.err" -ErrorAction SilentlyContinue
 foreach ($file in $logFiles) {
     try { Remove-Item $file.FullName -Force -ErrorAction SilentlyContinue; $logCount++ } catch {}
 }

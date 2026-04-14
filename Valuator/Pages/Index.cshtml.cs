@@ -11,12 +11,18 @@ public class IndexModel : PageModel
     private readonly ILogger<IndexModel> _logger;
     private readonly IConnectionMultiplexer _redisConnection;
     private readonly IRankMessageProducer _rankProducer;
+    private readonly IEventProducer _eventProducer;
 
-    public IndexModel(ILogger<IndexModel> logger, IConnectionMultiplexer redisConnection, IRankMessageProducer rankProducer)
+
+    public IndexModel(ILogger<IndexModel> logger, 
+    IConnectionMultiplexer redisConnection, 
+    IRankMessageProducer rankProducer,
+    IEventProducer eventProducer)
     {
         _logger = logger;
         _redisConnection = redisConnection;
         _rankProducer = rankProducer;
+        _eventProducer = eventProducer;
     }
 
     public void OnGet() { }
@@ -36,6 +42,9 @@ public class IndexModel : PageModel
         // Синхронно вычисляем similarity
         double similarity = CalculateSimilarity(text, db);
         db.StringSet($"SIMILARITY-{id}", similarity.ToString(CultureInfo.InvariantCulture));
+
+        // Уведомляем о вычисленном similarity
+        await _eventProducer.PublishSimilarityCalculatedAsync(id, similarity);
         
         // Сохраняем текст
         db.StringSet($"TEXT-{id}", text);

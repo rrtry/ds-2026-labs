@@ -4,15 +4,26 @@ Write-Host "Stopping previous instances..." -ForegroundColor Yellow
 # Останавливаем ранее запущенные экземпляры Valuator (по процессам dotnet с --urls)
 Get-Process -Name dotnet -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*--urls*" } | Stop-Process -Force
 # Останавливаем RankCalculator (по сохранённым PID)
-$pidFile = Join-Path $env:TEMP "rankcalculator_pids.txt"
-if (Test-Path $pidFile) {
-    Get-Content $pidFile | ForEach-Object {
+$rankPidFile = Join-Path $env:TEMP "rankcalculator_pids.txt"
+if (Test-Path $rankPidFile) {
+    Get-Content $rankPidFile | ForEach-Object {
         try {
             $proc = Get-Process -Id $_ -ErrorAction SilentlyContinue
             if ($proc) { $proc | Stop-Process -Force }
         } catch {}
     }
-    Remove-Item $pidFile -Force
+    Remove-Item $rankPidFile -Force
+}
+# Останавливаем EventsLogger (по сохранённым PID)
+$loggerPidFile = Join-Path $env:TEMP "eventslogger_pids.txt"
+if (Test-Path $loggerPidFile) {
+    Get-Content $loggerPidFile | ForEach-Object {
+        try {
+            $proc = Get-Process -Id $_ -ErrorAction SilentlyContinue
+            if ($proc) { $proc | Stop-Process -Force }
+        } catch {}
+    }
+    Remove-Item $loggerPidFile -Force
 }
 # Останавливаем nginx
 Get-Process -Name nginx -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -25,6 +36,7 @@ $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectRoot = Split-Path -Parent $scriptPath
 $appPath = Join-Path $projectRoot "Valuator"
 $rankCalculatorPath = Join-Path $projectRoot "RankCalculator"
+$eventsLoggerPath = Join-Path $projectRoot "EventsLogger"
 
 Write-Host "`nStarting Valuator application instances from: $appPath" -ForegroundColor Yellow
 foreach ($port in $ports) {
@@ -45,7 +57,7 @@ foreach ($port in $ports) {
 
 Write-Host "`nStarting RankCalculator instances" -ForegroundColor Yellow
 $rankCalculatorInstances = 3   # количество экземпляров
-$pids = @()
+$rankPids = @()
 
 for ($i=1; $i -le $rankCalculatorInstances; $i++) {
     Write-Host -NoNewline "Starting RankCalculator instance #$i :"
@@ -59,7 +71,7 @@ for ($i=1; $i -le $rankCalculatorInstances; $i++) {
             -RedirectStandardError "$env:TEMP\rankcalculator_$i.err"
         if ($proc) {
             Write-Host "OK (PID: $($proc.Id))" -ForegroundColor Green
-            $pids += $proc.Id
+            $rankPids += $proc.Id
         } else {
             Write-Host "Error" -ForegroundColor Red
         }
@@ -69,7 +81,35 @@ for ($i=1; $i -le $rankCalculatorInstances; $i++) {
 }
 
 # Сохраняем PID'ы RankCalculator в файл для остановки
-$pids | Out-File -FilePath $pidFile -Force
+$rankPids | Out-File -FilePath $rankPidFile -Force
+
+Write-Host "`nStarting EventsLogger instances" -ForegroundColor Yellow
+$eventsLoggerInstances = 2
+$loggerPids = @()
+
+for ($i=1; $i -le $eventsLoggerInstances; $i++) {
+    Write-Host -NoNewline "Starting EventsLogger instance #$i :"
+    try {
+        $proc = Start-Process -FilePath "dotnet" `
+            -ArgumentList "run" `
+            -WorkingDirectory $eventsLoggerPath `
+            -PassThru `
+            -NoNewWindow `
+            -RedirectStandardOutput "$env:TEMP\eventslogger_$i.log" `
+            -RedirectStandardError "$env:TEMP\eventslogger_$i.err"
+        if ($proc) {
+            Write-Host "OK (PID: $($proc.Id))" -ForegroundColor Green
+            $loggerPids += $proc.Id
+        } else {
+            Write-Host "Error" -ForegroundColor Red
+        }
+    }
+    catch { Write-Host "Failed: $_" -ForegroundColor Red }
+    Start-Sleep -Seconds 1
+}
+
+# Сохраняем PID'ы EventsLogger в файл для остановки
+$loggerPids | Out-File -FilePath $loggerPidFile -Force
 
 Write-Host "`nWaiting for all applications to start..." -ForegroundColor Yellow
 Start-Sleep -Seconds 5
@@ -130,6 +170,7 @@ foreach ($port in $ports) {
     Write-Host "  - http://localhost:$port (active)"
 }
 Write-Host "RankCalculator instances: $rankCalculatorInstances"
+Write-Host "EventsLogger instances: $eventsLoggerInstances"
 Write-Host "`nNginx status: http://localhost:8080/status" -ForegroundColor Gray
-Write-Host "Log files: $env:TEMP\valuator_*.log, $env:TEMP\rankcalculator_*.log" -ForegroundColor Gray
+Write-Host "Log files: $env:TEMP\valuator_*.log, $env:TEMP\rankcalculator_*.log, $env:TEMP\eventslogger_*.log" -ForegroundColor Gray
 Write-Host "`nTo stop the system run: .\scripts\stop.ps1" -ForegroundColor Yellow

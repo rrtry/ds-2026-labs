@@ -1,10 +1,12 @@
 ﻿using System.Text;
+using System.Text.Json;
 using System.Globalization;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using StackExchange.Redis;
 
 const string QueueName = "valuator.processing.rank";
+const string ExchangeName = "events";
 
 // Настройка RabbitMQ
 var factory = new ConnectionFactory { HostName = "localhost" };
@@ -16,6 +18,12 @@ await channel.QueueDeclareAsync(
     durable: true,
     exclusive: false,
     autoDelete: false
+);
+
+await channel.ExchangeDeclareAsync(
+    exchange: ExchangeName,
+    type: ExchangeType.Topic,
+    durable: true
 );
 
 var redis = ConnectionMultiplexer.Connect("localhost:6379");
@@ -42,6 +50,15 @@ consumer.ReceivedAsync += async (_, ea) =>
         double rank = CalculateRank(text.ToString());
         await db.StringSetAsync($"RANK-{id}", rank.ToString(CultureInfo.InvariantCulture));
         Console.WriteLine($"[RankCalculator] Rank for {id} = {rank}");
+
+        var eventMessage = new { Id = id, Rank = rank };
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventMessage));
+
+        await channel.BasicPublishAsync(
+            exchange: ExchangeName,
+            routingKey: "rank.calculated",
+            body: body
+        );
 
         await channel.BasicAckAsync(ea.DeliveryTag, false);
     }
