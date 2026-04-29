@@ -3,11 +3,6 @@ using RabbitMQ.Client;
 
 namespace Valuator.Services;
 
-public interface IRankMessageProducer
-{
-    Task PublishAsync(string id);
-}
-
 public class RabbitMqRankProducer : IRankMessageProducer, IAsyncDisposable
 {
     private const string QueueName = "valuator.processing.rank";
@@ -37,7 +32,7 @@ public class RabbitMqRankProducer : IRankMessageProducer, IAsyncDisposable
             autoDelete: false);
     }
 
-    public async Task PublishAsync(string id)
+    public async Task PublishRankAsync(string id)
     {
         await EnsureChannelAsync();
         byte[] body = Encoding.UTF8.GetBytes(id);

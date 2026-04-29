@@ -1,14 +1,18 @@
 ﻿using System.Text;
 using System.Text.Json;
 
+using Microsoft.Extensions.Logging;
+
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 const string ExchangeName = "events";
-const string QueueName = "events.logger"; // фиксированная очередь для логгера
 
-var factory = new ConnectionFactory { HostName = "localhost" };
-using var connection = await factory.CreateConnectionAsync();
+using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+var logger = loggerFactory.CreateLogger<Program>();
+
+var connectionFactory = new ConnectionFactory { HostName = "localhost" };
+using var connection = await connectionFactory.CreateConnectionAsync();
 using var channel = await connection.CreateChannelAsync();
 
 // Объявляем exchange
@@ -19,18 +23,22 @@ await channel.ExchangeDeclareAsync(
 );
 
 // Объявляем очередь
-await channel.QueueDeclareAsync(
-    queue: QueueName,
+var queueDeclareResult = await channel.QueueDeclareAsync(
+    queue: "",
     durable: true,
-    exclusive: false,
-    autoDelete: false
+    exclusive: true,
+    autoDelete: true
 );
 
-// Привязываем к routing key для обоих событий
-await channel.QueueBindAsync(QueueName, ExchangeName, "rank.calculated");
-await channel.QueueBindAsync(QueueName, ExchangeName, "similarity.calculated");
+string queueName = queueDeclareResult.QueueName;
+logger.LogInformation(queueName, ExchangeName, $"Created unique queue: {queueName}");
 
-Console.WriteLine("EventsLogger started. Waiting for events...");
+// Привязываем к routing key для обоих событий
+await channel.QueueBindAsync(queueName, ExchangeName, "rank.calculated");
+await channel.QueueBindAsync(queueName, ExchangeName, "similarity.calculated");
+
+logger.LogInformation("EventsLogger started. Waiting for events...");
+// Console.WriteLine("EventsLogger started. Waiting for events...");
 
 var consumer = new AsyncEventingBasicConsumer(channel);
 consumer.ReceivedAsync += async (_, ea) =>
@@ -47,22 +55,24 @@ consumer.ReceivedAsync += async (_, ea) =>
         if (routingKey == "rank.calculated")
         {
             var rank = jsonDoc.RootElement.GetProperty("Rank").GetDouble();
-            Console.WriteLine($"[EVENT] Type: RankCalculated, Id: {id}, Rank: {rank}");
+            logger.LogInformation($"[EVENT] Type: RankCalculated, Id: {id}, Rank: {rank}");
+            //Console.WriteLine($"[EVENT] Type: RankCalculated, Id: {id}, Rank: {rank}");
         }
         else if (routingKey == "similarity.calculated")
         {
             var similarity = jsonDoc.RootElement.GetProperty("Similarity").GetDouble();
-            Console.WriteLine($"[EVENT] Type: SimilarityCalculated, Id: {id}, Similarity: {similarity}");
+            logger.LogInformation($"[EVENT] Type: SimilarityCalculated, Id: {id}, Similarity: {similarity}");
+            //Console.WriteLine($"[EVENT] Type: SimilarityCalculated, Id: {id}, Similarity: {similarity}");
         }
 
         await channel.BasicAckAsync(ea.DeliveryTag, false);
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Error processing event: {ex.Message}");
+        logger.LogError($"Error processing event: {ex.Message}");
         await channel.BasicNackAsync(ea.DeliveryTag, false, true);
     }
 };
 
-await channel.BasicConsumeAsync(QueueName, autoAck: false, consumer: consumer);
+await channel.BasicConsumeAsync(queueName, autoAck: false, consumer: consumer);
 await Task.Delay(-1);

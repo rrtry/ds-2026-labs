@@ -50,7 +50,7 @@ public class IndexModel : PageModel
         db.StringSet($"TEXT-{id}", text);
 
         // Отправляем задание на вычисление ранга в очередь
-        await _rankProducer.PublishAsync(id);
+        await _rankProducer.PublishRankAsync(id);
 
         return Redirect($"summary?id={id}");
     }
