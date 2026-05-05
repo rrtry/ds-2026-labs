@@ -25,7 +25,6 @@ public class Program
         builder.Services.AddScoped<IRankMessageProducer, RabbitMqRankProducer>();
         builder.Services.AddScoped<IEventProducer, RabbitMqEventProducer>();
 
-
         var app = builder.Build();
         if (!app.Environment.IsDevelopment())
         {
