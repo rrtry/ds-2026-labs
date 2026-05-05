@@ -64,3 +64,26 @@
 2026/04/22 14:50:46 [error] 30520#5568: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
 2026/04/24 19:05:00 [notice] 24400#24896: signal process started
 2026/04/24 19:05:00 [error] 24400#24896: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 11:15:45 [notice] 8320#10920: signal process started
+2026/04/29 11:15:45 [error] 8320#10920: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 11:21:33 [notice] 19504#25908: signal process started
+2026/04/29 11:21:33 [error] 19504#25908: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 11:29:19 [notice] 19504#19256: signal process started
+2026/04/29 11:29:19 [error] 19504#19256: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 11:36:04 [notice] 24256#26716: signal process started
+2026/04/29 11:36:04 [error] 24256#26716: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 11:43:20 [notice] 18132#10148: signal process started
+2026/04/29 11:43:20 [error] 18132#10148: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 11:45:31 [notice] 21328#28192: signal process started
+2026/04/29 11:45:31 [error] 21328#28192: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 11:49:46 [notice] 26388#25960: signal process started
+2026/04/29 11:49:46 [error] 26388#25960: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 12:10:04 [emerg] 14776#22060: unknown directive "sticky" in C:\Users\Fedor\Projects\ds-2026-labs\nginx/conf/nginx.conf:22
+2026/04/29 12:22:25 [notice] 28900#25732: signal process started
+2026/04/29 12:22:25 [error] 28900#25732: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 13:13:15 [notice] 12860#21740: signal process started
+2026/04/29 13:13:15 [error] 12860#21740: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 15:35:30 [notice] 18520#23164: signal process started
+2026/04/29 15:35:30 [error] 18520#23164: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"
+2026/04/29 15:40:23 [notice] 20224#23952: signal process started
+2026/04/29 15:40:23 [error] 20224#23952: invalid PID number "" in "C:\Users\Fedor\Projects\ds-2026-labs\nginx/logs/nginx.pid"

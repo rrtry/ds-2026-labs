@@ -47,6 +47,11 @@ consumer.ReceivedAsync += async (_, ea) =>
             return;
         }
 
+        // Задержка
+        TimeSpan delay = TimeSpan.FromSeconds(new Random().Next(3, 15));
+        Console.WriteLine($"Waiting {delay} for id {id}");
+        await Task.Delay(delay);
+
         double rank = CalculateRank(text.ToString());
         await db.StringSetAsync($"RANK-{id}", rank.ToString(CultureInfo.InvariantCulture));
         Console.WriteLine($"[RankCalculator] Rank for {id} = {rank}");

@@ -9,11 +9,38 @@
 <p><strong>Text:</strong> @Model.Text</p>
 <p><strong>Similarity:</strong> @Model.Similarity</p>
 
-@if (!Model.IsRankCalculated)
-{
-    <p><strong>Rank:</strong> Оценка содержания не завершена</p>
-}
-else
-{
-    <p><strong>Rank:</strong> @Model.Rank</p>
-}
+<p>
+    <strong>Rank:</strong> 
+    <span id="rankValue">
+        @if (!Model.IsRankCalculated)
+        {
+            <text>Оценка содержания не завершена</text>
+        }
+        else
+        {
+            @Model.Rank
+        }
+    </span>
+</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+<script>
+
+    const id = "@Model.Id";
+    const isRankCalculated = @Model.IsRankCalculated.ToString().ToLower();
+
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/rankHub")
+        .build();
+
+    connection.start().then(() => {
+        console.log("SignalR connected");
+        connection.invoke("SubscribeToRank", id).catch(err => console.error(err));
+    }).catch(err => console.error(err));
+
+    connection.on("RankReady", (rank) => {
+        console.log("Rank received:", rank);
+        const rankSpan = document.getElementById("rankValue");
+        rankSpan.innerText = rank;
+    });
+</script>
