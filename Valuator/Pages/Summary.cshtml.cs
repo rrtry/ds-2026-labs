@@ -1,19 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using StackExchange.Redis;
+
 using System.Globalization;
+
+using ShardingCore;
 
 namespace Valuator.Pages;
 
 public class SummaryModel : PageModel
 {
     private readonly ILogger<SummaryModel> _logger;
-    private readonly IConnectionMultiplexer _redisConnection;
+    private readonly IShardManager _shardManager;
 
-    public SummaryModel(ILogger<SummaryModel> logger, IConnectionMultiplexer redisConnection)
+    public SummaryModel(ILogger<SummaryModel> logger, IShardManager shardManager)
     {
         _logger = logger;
-        _redisConnection = redisConnection;
+        _shardManager = shardManager;
     }
 
     public string Id { get; set; } = string.Empty;
@@ -22,7 +24,7 @@ public class SummaryModel : PageModel
     public double Similarity { get; set; } = 0.0;
     public bool IsRankCalculated { get; set; } = false;
 
-    public IActionResult OnGet(string id)
+    public async Task<IActionResult> OnGet(string id)
     {
         if (string.IsNullOrEmpty(id))
         {
@@ -32,7 +34,13 @@ public class SummaryModel : PageModel
         Id = id;
         _logger.LogDebug($"Loading data for ID: {id}");
 
-        var db = _redisConnection.GetDatabase();
+        var region = await _shardManager.GetShardKeyAsync(id);
+        if (region == null)
+        {
+            return NotFound("Region ID not found");
+        }
+
+        var db = _shardManager.GetShardDatabase(region);
 
         var textValue = db.StringGet($"TEXT-{id}");
         Text = textValue.IsNullOrEmpty ? "Not found" : textValue.ToString();
@@ -43,7 +51,8 @@ public class SummaryModel : PageModel
         if (IsRankCalculated)
         {
             var rankValue = db.StringGet(rankKey);
-            if (!rankValue.IsNullOrEmpty && double.TryParse(rankValue.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out double rank))
+            if (!rankValue.IsNullOrEmpty && 
+                double.TryParse(rankValue.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out double rank))
             {
                 Rank = rank;
             }

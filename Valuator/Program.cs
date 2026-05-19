@@ -1,6 +1,6 @@
-using StackExchange.Redis;
 using RabbitMQ.Client;
 using Valuator.Services;
+using ShardingCore;
 
 namespace Valuator;
 
@@ -11,9 +11,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddRazorPages();
-        builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
-            ConnectionMultiplexer.Connect("localhost:6379")
-        );
+        builder.Services.AddSingleton<IShardManager, ShardManager>();
 
         // Регистрация RabbitMQ connection
         builder.Services.AddSingleton<IConnection>(sp =>
